@@ -1,0 +1,99 @@
+name: upower
+version: 0.99.4-4
+summary: UPower Battery Monitoring daemon
+description: |
+  UPower is an abstraction for enumerating power devices, listening to
+  device events and querying history and statistics. Any application
+  or service on the system can access the org.freedesktop.UPower
+  service via the system message bus.
+
+  Please find the source code at https://code.launchpad.net/~snappy-hwe-team/snappy-hwe-snaps/+git/upower
+confinement: devmode
+#confinement: strict
+grade: stable
+
+apps:
+  upower:
+    command: bin/upower
+    daemon: simple
+    slots: [service]
+
+parts:
+  upower:
+    plugin: autotools
+
+    source: https://git.launchpad.net/~snappy-hwe-team/snappy-hwe-snaps/+git/upower
+    source-type: git
+    # For development you can directly build from the xenial branch if
+    # needed. Otherwise use the tag to the latest version which will be
+    # used by the published snap.
+    source-branch: upower/xenial/0.99.4
+    # source-tag: upower-0.99.4-4
+
+    build-packages:
+    # We stage everything here we need for build and runtime
+    stage-packages:
+    configflags:
+
+    # Filter files pulled in by stage-packages so they aren't
+    # included in the final snap. We only need them to build
+    # upower. All runtime dependencies are pulled in with
+    # the rdepends part below. The only left items specified
+    # here are the results of the upower build.
+    filesets:
+      binaries:
+      configs:
+      docs:
+        - usr/share/doc
+      rdepends:
+        - lib64/*
+        - lib/*/
+        - usr/lib/*
+      unwanted:
+        # We don't want anything in usr/share but the doc folder
+        # to carry all copyright information
+        - -usr/share/bash-completion
+        - -usr/share/bug
+        - -usr/share/dbus-1
+        - -usr/share/gir-1.0
+        - -usr/share/glib-2.0
+        - -usr/share/gtk-doc
+        - -usr/share/lintian
+        - -usr/share/locale
+        - -usr/share/man
+        - -usr/share/pam-configs
+        - -usr/share/polkit-1
+        - -usr/share/upstart
+
+        # Unwanted content coming from the stage debian packages
+        - -etc/
+        # Contains many libraries which are already present in usr/lib/
+        - -lib/
+        - -usr/include/
+        - -usr/etc
+        - -usr/sbin/invoke-rc.d
+        - -usr/sbin/service
+        - -usr/sbin/update-rc.d
+        - -usr/lib/dbus-1.0/
+        - -usr/lib/tmpfiles.d/
+        - -usr/lib/*/pkgconfig
+        - -usr/lib/pkgconfig
+        - -usr/lib/gcc/
+        - -usr/lib/*/gconv/
+        - -usr/lib/girepository-1.0/
+        - -usr/lib/systemd/
+        - -usr/lib/udev/
+        - -usr/lib/*.a
+        - -usr/lib/*/*.a
+        - -usr/lib/*.la
+        - -usr/lib/*/*.la
+        - -usr/lib/*/*.o
+        - -usr/lib/*/systemd-shim
+        - -usr/lib/*/systemd-shim-cgroup-release-agent
+    snap:
+      - $binaries
+      - $configs
+      - $docs
+      - $rdepends
+      - $unwanted
+
