@@ -1,0 +1,83 @@
+summary: Device should be turned off when the battery is low
+
+prepare: |
+    insmod $PROJECT_PATH/tests/lib/battery/fake_battery.ko
+
+restore: |
+    rmmod fake_battery
+    umount /lib/systemd/system/systemd-poweroff.service
+
+execute: |
+    . $TESTSLIB/utilities.sh
+
+    upower=/snap/bin/upower
+
+    cat <<-EOF > /var/snap/upower/current/UPower.conf
+    [UPower]
+    EnableWattsUpPro=false
+    NoPollBatteries=false
+    IgnoreLid=false
+    UsePercentageForPolicy=true
+    PercentageLow=10
+    PercentageCritical=3
+    PercentageAction=2
+    TimeLow=1200
+    TimeCritical=300
+    TimeAction=120
+    CriticalPowerAction=PowerOff
+    EOF
+
+    systemctl restart snap.upower.upowerd
+    wait_for_upower
+
+    $upower -d | grep 'critical-action: PowerOff'
+
+    # Override the default systemd poweroff unit as this allows us
+    # to track whether the device was really meant to be powered
+    # off and upower called logind to trigger this.
+    cat <<-EOF > $PROJECT_PATH/systemd-poweroff.service
+    [Unit]
+    Description=Power-Off
+    Documentation=man:systemd-halt.service(8)
+    DefaultDependencies=no
+    [Service]
+    Type=oneshot
+    ExecStart=/bin/sh -c 'touch /tmp/systemd-poweroff-called'
+    EOF
+
+    mount -o bind,ro $PROJECT_PATH/systemd-poweroff.service /lib/systemd/system/systemd-poweroff.service
+    systemctl daemon-reload
+
+    # We ignore the second battery which the fake_battery driver provides
+    # and not not influence upowerd's decision we set its capacity to zero.
+    echo 'capacity1=0' > /dev/fake_battery
+
+    # We don't charge anymore and
+    echo 'charging=0' > /dev/fake_battery
+    # .. set our capacity to a little bit above the treshold
+    echo 'capacity0=5' > /dev/fake_battery
+
+    # poweroff shouldn't be called yet
+    test ! -e /tmp/systemd-poweroff-called
+
+    # Now lets drop capactiy down to trigger the poweroff action
+    echo 'capacity0=2' > /dev/fake_battery
+
+    # Give system a bit of time until poweroff is really called
+    n=0
+    powered_off=0
+    while [ $n -lt 50 ] ; do
+        if [ -e /tmp/systemd-poweroff-called ] ; then
+            powered_off=1
+            break
+        fi
+        sleep 1
+        let n=n+1
+    done
+    test $powered_off -eq 1
+
+    # NOTE: Even if upowerd has called the PowerOff method of the
+    # logind service we can leave our system as is as the modified
+    # systemd-poweroff.service will ensure that that call doesn't
+    # have any effect on the rest on the system and can safely be
+    # reused for furhter tests.

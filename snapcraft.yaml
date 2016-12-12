@@ -59,7 +59,8 @@ parts:
 
     filesets:
       unwanted:
-        - -etc/dbus-1
+        # FIXME: Drop when we have the upower-control interface in place
+        # - -etc/dbus-1
         - -usr/share/locale
         - -usr/share/man
         - -usr/share/dbus-1
