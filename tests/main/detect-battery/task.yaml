@@ -1,0 +1,24 @@
+summary: Upower is able to detect an existing battery device
+
+prepare: |
+    insmod $PROJECT_PATH/tests/lib/battery/fake_battery.ko
+
+restore: |
+    rmmod fake_battery
+
+execute: |
+    . $TESTSLIB/utilities.sh
+
+    wait_for_upower
+
+    upower=/snap/bin/upower
+
+    # Battery device is directly available so upower should list it
+    $upower -d | grep /org/freedesktop/UPower/devices/battery_BAT0
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'model:.*Fake battery 1'
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'serial:.*12345678'
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'power supply:.*yes'
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'present:.*yes'
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'rechargeable:.*yes'
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'state:.*fully-charged'
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'percentage:.*100%'

@@ -1,0 +1,36 @@
+summary: Reports a charging battery and its current level
+
+prepare: |
+    insmod $PROJECT_PATH/tests/lib/battery/fake_battery.ko
+
+restore: |
+    rmmod fake_battery
+
+execute: |
+    . $TESTSLIB/utilities.sh
+
+    wait_for_upower
+
+    upower=/snap/bin/upower
+
+    $upower -d | grep "/org/freedesktop/UPower/devices/battery_BAT0"
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'percentage:.*100%'
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'state:.*fully-charged'
+
+    echo 'capacity0 = 0' > /dev/fake_battery
+    echo 'charging = 1' > /dev/fake_battery
+
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'percentage:.*0%'
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'state:.*charging'
+    n=0
+    while [ n -lt 100 ] ; do
+        echo 'capacity0 = $n' > /dev/fake_battery
+        sleep 0.1
+        $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'percentage:.*$n%'
+        $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'state:.*charging'
+        let n=n+1
+    done
+
+    # Switching capacity to 100% will also change the state of the battery
+    echo 'capacity0 = 100' > /dev/fake_battery
+    $upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep 'state:.*fully-charged'
