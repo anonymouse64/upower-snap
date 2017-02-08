@@ -1,5 +1,5 @@
 name: upower
-version: 0.99.4-2
+version: 0.99.4-3
 summary: UPower Power Source Monitoring daemon
 description: |
   UPower is an abstraction for enumerating power devices, listening to
