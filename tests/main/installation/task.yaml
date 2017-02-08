@@ -1,10 +1,13 @@
 summary: Verify correct installation of the upower snap
 
 execute: |
+    . $TESTSLIB/utilities.sh
+
     # Snap should be installed and service should be up and
     # running.
     snap list | grep upower
-    systemctl status snap.upower.upowerd
+
+    wait_for_upower
 
     # We should be able to enumerate existing items
     test `/snap/bin/upower -e | wc -l` -ne 0

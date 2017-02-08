@@ -27,19 +27,12 @@ if [ -n "$SNAP_CHANNEL" ] ; then
 		snap install --$SNAP_CHANNEL upower
 	fi
 else
-	# Need first install from store to get all necessary assertions into
-	# place. Second local install will then bring in our locally built
-	# snap.
-	# FIXME: Enable again once we have the first version of the snap
-	# available in the store.
-	# snap install upower
-	snap install --devmode --dangerous /home/upower/upower_*_amd64.snap
-
-	# FIXME: As long as we don't have the upower-control interface
-	# available we test the snap in devmode and therefore need to
-	# copy the dbus policy file in place
-	cp /snap/upower/current/etc/dbus-1/system.d/* /etc/dbus-1/system.d/
-	systemctl restart snap.upower.upowerd
+	# FIXME until we have a version in the store with a proper
+	# snap declaration which allows auto-connection of our plugs
+	# and slots we connect both manually.
+	snap install --dangerous /home/upower/upower_*_amd64.snap
+	snap connect upower:client upower:service
+	snap connect upower:hardware-observe core
 fi
 
 # Snapshot of the current snapd state for a later restore
