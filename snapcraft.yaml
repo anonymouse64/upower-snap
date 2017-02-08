@@ -11,14 +11,26 @@ description: |
 confinement: strict
 grade: stable
 
+slots:
+  service:
+    interface: upower-observe
+
+plugs:
+  client:
+    interface: upower-observe
+
 apps:
   upowerd:
     daemon: simple
     command: bin/upowerd.sh
+    slots:
+      - service
+    plugs:
+      - hardware-observe
   upower:
     command: bin/upower.sh
     plugs:
-      - upower-observe
+      - client
 
 parts:
   common:
