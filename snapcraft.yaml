@@ -52,6 +52,7 @@ parts:
       - --prefix=/usr
       - --sysconfdir=/etc
       - --with-historydir=/var/snap/upower/common/history
+      - --enable-tests
 
     build-packages:
       - build-essential
@@ -82,3 +83,7 @@ parts:
 
     snap:
       - $unwanted
+
+    install: |
+      # Run all tests shipped by default
+      make check
