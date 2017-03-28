@@ -10,7 +10,7 @@ events and querying power history and statistics. Any application or service on
 the system can access the org.freedesktop.UPower service via the system message
 bus.
 
-Upower also does auto-s3|s4|s5 on critical low battery events.
+UPower also does auto-s3|s4|s5 on critical low battery events.
 
 ## Upstream Documentation
 
