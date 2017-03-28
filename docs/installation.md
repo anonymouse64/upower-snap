@@ -16,9 +16,9 @@ You can install the snap with the following command:
  upower 0.99.4-3 from 'canonical' installed
 ```
 
-Although the upower snap ins available from other channels (candidate, beta,
+Although the upower snap is available from other channels (candidate, beta,
 edge), only the stable version should be used for production devices. Their
-menaing is internal to the development team of the upower snap.
+meaning is internal to the development team of the upower snap.
 
 All necessary plugs and slots will be automatically connected within the
 installation process. You can verify this with:
@@ -32,7 +32,7 @@ installation process. You can verify this with:
 ```
 
 Once the installation has successfully finished the UPower service is running
-in the background. You can check uts current status with:
+in the background. You can check its current status with:
 
 ```
  $ systemctl status snap.upower.upowerd
