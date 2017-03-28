@@ -1,0 +1,20 @@
+site_title: UPower documentation
+navigation:
+    - title: Introduction
+      children:
+          - title: About UPower
+            location: index.md
+    - title: Install & Configure
+      children:
+          - title: Install UPower
+            location: installation.md
+    - title: Reference
+      children:
+          - title: Available Commands
+            location: reference/available-commands.md
+          - title: DBus API
+            location: reference/dbus-api.md
+    - title: Release Notes
+      location: release-notes.md
+    - title: Report a Bug
+      location: report-bug.md
